@@ -54,7 +54,7 @@ public class ApiRestController {
 		}
 	}
 
-	@PostMapping("/foods/addCategories")
+	@PostMapping("/foods/categories")
 	public ResponseEntity<Food> addCategoriesToFood(@RequestBody FoodHasCategories response) {
 
 		try {
@@ -112,7 +112,7 @@ public class ApiRestController {
 			List<Food> foods = new ArrayList<Food>();
 
 			if (name != null) {
-				if (name.length()<1) {
+				if (name.length() < 1) {
 					foodRepository.findTop10ByOrderByIdDesc().forEach(foods::add);
 					logger.info(name);
 					logger.info("empty");
@@ -121,10 +121,10 @@ public class ApiRestController {
 					logger.info("containing");
 				}
 
-			} else if(all==true) {
+			} else if (all == true) {
 				foodRepository.findAll().forEach(foods::add);
 
-			}else {
+			} else {
 				foodRepository.findTop10ByOrderByIdDesc().forEach(foods::add);
 			}
 
@@ -137,16 +137,14 @@ public class ApiRestController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	@GetMapping("/foods/category/{category}")
-	public ResponseEntity<List<Food>> getAllTutorials(@PathVariable String category
-		) {
+
+	@GetMapping("/foods/categories/{category}")
+	public ResponseEntity<List<Food>> getAllTutorials(@PathVariable String category) {
 		try {
 			List<Food> foods = new ArrayList<Food>();
 
 			if (category != null) {
-				
+
 				categoryRepository.findByName(category).getFoodItems().forEach(foods::add);
 			}
 
@@ -167,6 +165,29 @@ public class ApiRestController {
 			return new ResponseEntity<Food>(_food.get(), HttpStatus.OK);
 		} else
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+	}
+
+	@GetMapping("/foods/compare/{ids}")
+	public ResponseEntity<List<Food>> compareFoods(@PathVariable List<Long> ids) {
+			try {
+				List<Food> foods = new ArrayList<Food>();
+
+				if (ids != null || !ids.isEmpty()) {
+
+					foodRepository.findAllById(ids).forEach(foods::add);
+					
+				}
+
+				if (foods.isEmpty()) {
+					return new ResponseEntity<>(HttpStatus.NO_CONTENT);}
+				
+				return new ResponseEntity<>(foods, HttpStatus.OK);
+				
+				
+			} catch (Exception e) {
+				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 
 	}
 
